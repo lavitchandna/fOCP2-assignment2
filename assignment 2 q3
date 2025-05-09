@@ -1,0 +1,141 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+class Student {
+private:
+    char name[100];
+    int rollNumber;
+    float cgpa;
+    char courses[10][100];
+    int courseCount;
+public:
+    Student() {
+        strcpy(name, "Unknown");
+        rollNumber = 0;
+        cgpa = 0.0;
+        courseCount = 0;
+    }
+    Student(const char* n, int roll, float c) {
+        strcpy(name, n);
+        rollNumber = roll;
+        setCGPA(c);
+        courseCount = 0;
+    }
+    Student(const Student& other) {
+        strcpy(name, other.name);
+        rollNumber = other.rollNumber;
+        cgpa = other.cgpa;
+        courseCount = other.courseCount;
+        for (int i = 0; i < courseCount; i++) {
+            strcpy(courses[i], other.courses[i]);
+        }
+    }
+    ~Student() {}
+    void addCourse(const char* course) {
+        for (int i = 0; i < courseCount; i++) {
+            if (strcmp(courses[i], course) == 0) {
+                cout << "Course already added.\n";
+                return;
+            }
+        }
+        if (courseCount < 10) {
+            strcpy(courses[courseCount++], course);
+            cout << "Course added successfully.\n";
+        } else {
+            cout << "Course limit reached.\n";
+        }
+    }
+    void setCGPA(float newCGPA) {
+        if (newCGPA >= 0.0 && newCGPA <= 10.0) {
+            cgpa = newCGPA;
+        } else {
+            cout << "Invalid CGPA.\n";
+        }
+    }
+    void display() const {
+        cout << "Name: " << name << "\nRoll No: " << rollNumber
+             << "\nCGPA: " << cgpa << "\nCourses:\n";
+        for (int i = 0; i < courseCount; i++) {
+            cout << "- " << courses[i] << "\n";
+        }
+    }
+    int getRollNumber() const {
+        return rollNumber;
+    }
+};
+class StudentManagementSystem {
+private:
+    Student students[100];  
+    int studentCount;
+public:
+    StudentManagementSystem() {
+        studentCount = 0;
+    }
+    void addStudent(const char* name, int roll, float cgpa) {
+        if (studentCount >= 100) {
+            cout << "Cannot add more students.\n";
+            return ;
+        }
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i].getRollNumber() == roll) {
+                cout << "Student with this roll number already exists.\n";
+                return;
+            }
+        }
+        students[studentCount++] = Student(name, roll, cgpa);
+        cout << "Student added successfully.\n";
+    }
+    int findStudentIndex(int roll) {
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i].getRollNumber() == roll) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    void addCourseToStudent(int roll, const char* course) {
+        int index = findStudentIndex(roll);
+        if (index != -1) {
+            students[index].addCourse(course);
+        } else {
+            cout << "Student not found.\n";
+        }
+    }
+    void updateCGPA(int roll, float newCGPA) {
+        int index = findStudentIndex(roll);
+        if (index != -1) {
+            students[index].setCGPA(newCGPA);
+        } else {
+            cout << "Student not found.\n";
+        }
+    }
+    void displayStudent(int roll) {
+        int index = findStudentIndex(roll);
+        if (index != -1) {
+            students[index].display();
+        } else {
+            cout << "Student not found.\n";
+        }
+    }
+    void displayAllStudents() {
+        if (studentCount == 0) {
+            cout << "No student records.\n";
+        }
+        for (int i = 0; i < studentCount; i++) {
+            cout << "\n--- Student " << (i + 1) << " ---\n";
+            students[i].display();
+        }
+    }
+};
+int main() {
+    StudentManagementSystem sms;
+    sms.addStudent("Lavit", 101, 8.7);
+    sms.addStudent("Anya", 102, 9.1);
+    sms.addCourseToStudent(101, "Math");
+    sms.addCourseToStudent(101, "Physics");
+    sms.updateCGPA(101, 9.0);
+    sms.displayStudent(101);
+    cout << "\nAll student records:\n";
+    sms.displayAllStudents();
+    return 0;
+}
